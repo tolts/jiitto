@@ -1,7 +1,25 @@
+;	bootloader.asm
+;   Copyright (C) 2022 schochtlts
+;
+;   This program is free software: you can redistribute it and/or modify
+;   it under the terms of the GNU General Public License as published by
+;   the Free Software Foundation, either version 3 of the License, or
+;   (at your option) any later version.
+;
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;   GNU General Public License for more details.
+;
+;   You should have received a copy of the GNU General Public License
+;   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 [org 0x7E00]
 [bits 16]
 mov bx, msg16_2.disk_load_success
 call real_mode_print_string
+
+call enable_A20
 
 cli
 lgdt[gdt_descriptor]
@@ -11,6 +29,12 @@ or eax, 0x1
 mov cr0, eax
 
 jmp code_segment:enabled_protected_mode
+
+enable_A20: 
+    in al, 0x92
+    or al, 0x2
+    out 0x92, al
+    ret
 
 gdt_null: 
     dd 0x0
@@ -190,7 +214,7 @@ protected_mode_clear_screen:
         ret
 
 msg32: 
-    .protected_mode_success: db ' debug : entered 32-bit protected mode. ', 13, 0
+    .protected_mode_success: db ' debug : entered 32-bit protected mode. ', 0
     .no_cpuid: db ' error : CPUID not found. halt. ', 0
     .cpuid_available: db ' debug : CPUID is available. ', 0
     .no_long_mode: db ' error : 64-bit long mode not available. halt. ', 0
@@ -201,20 +225,14 @@ enabled_long_mode:
     mov ebp, 0x7D00
     mov esp, ebp
 
+    call long_mode_clear_screen
+
     mov rax, msg64.long_mode_success
     call long_mode_print_string
 
-    call kernel_enabled
-
-    mov rax, msg64.terminated
-    call long_mode_print_string
-
-    hlt
-
-    jmp $
+    jmp kernel_entry
 
 long_mode_print_string:
-    call long_mode_clear_screen
     mov edx, 0xB8000
     .hang: 
         cmp [rax], byte 0
@@ -243,8 +261,7 @@ long_mode_clear_screen:
 
 msg64:
     .long_mode_success: db ' debug : entered 64-bit long mode. ', 0
-    .terminated: db ' debug: kernel was terminated. halt. ', 0
 
-kernel_enabled equ 0xE000
+kernel_entry equ 0x8200
 
 times 1024-($-$$) db 0

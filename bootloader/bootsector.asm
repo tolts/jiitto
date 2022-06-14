@@ -1,3 +1,19 @@
+;	bootsector.asm
+;   Copyright (C) 2022 schochtlts
+;
+;   This program is free software: you can redistribute it and/or modify
+;   it under the terms of the GNU General Public License as published by
+;   the Free Software Foundation, either version 3 of the License, or
+;   (at your option) any later version.
+;
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;   GNU General Public License for more details.
+;
+;   You should have received a copy of the GNU General Public License
+;   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 [org 0x7C00]
 [bits 16]
 mov [boot_drive], dl
@@ -24,7 +40,7 @@ jmp 0x7E00
 real_mode_disk_load: 
     mov ah, 2 ; BIOS function for disk reading
     mov bx, 0x7E00 ; where to load
-    mov al, 4 ; number of sectors to read
+    mov al, 3 ; number of sectors to load
     mov ch, 0 ; Cylinder 0
     mov dh, 0 ; Head 0
     mov cl, 2 ; Sector 0

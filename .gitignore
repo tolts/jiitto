@@ -1,1 +1,7 @@
-bochs.bxrc
+bochsrc.bxrc
+
+#containing a single line with the directory, ending with /shisaku
+dir.txt
+
+#containing a single line with the path to the emulator
+debug.txt

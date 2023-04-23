@@ -21,3 +21,5 @@ typedef struct{
     unsigned int intNumber, intCode;
     unsigned int eip, cs, eflags, useresp, ss;
 }__attribute__((packed)) registers;
+
+typedef void (*isr)(registers);

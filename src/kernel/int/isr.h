@@ -1,3 +1,4 @@
+#pragma once
 
 extern void isr0();
 extern void isr1();
@@ -49,15 +50,24 @@ extern void irq13();
 extern void irq14();
 extern void irq15();
 
+isr intHandlers[256];
+
 void isrHandler(registers regs){
-	const char* intNumber = convertIntAscii(regs.intNumber);
-	int len = charLen(intNumber);
+	char* intNumber = intToAscii((int)regs.intNumber, 10);
 	kprint("interrupt \0", 0, 0x0A);
-	kprint(intNumber + '\0', 10, 0x0E);
-	kprint(" received\0", 10 + len, 0x0A);
+	kprint(charAddNull(intNumber), 10, 0x0E);
+	kprint(" received\0", 10 + charLen(intNumber), 0x0A);
 }
 
 void irqHandler(registers regs){
+	picAcknowledge(regs.intNumber - 32);
+	if(intHandlers[regs.intNumber] != 0){
+		intHandlers[regs.intNumber](regs);
+	}
+}
+
+void setIntHandler(unsigned char n, isr handler){
+	intHandlers[n] = handler;
 }
 
 void isrInstall(void){

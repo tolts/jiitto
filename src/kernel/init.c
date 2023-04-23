@@ -15,28 +15,30 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "drivers/drivers.c"
-#include "drivers/vga.c"
+#include "algo/char.h"
+#include "algo/conversion.h"
 
-#include "algo/char.c"
-#include "algo/conversion.c"
+#include "drivers/drivers.h"
+#include "drivers/vga.h"
 
-#include "int/int.c"
-#include "int/idt.c"
-#include "int/pic.c"
-#include "int/isr.c"
+#include "int/int.h"
+#include "int/idt.h"
+#include "int/pic.h"
+#include "int/isr.h"
 
-//#include "drivers/keyboard.c"
+#include "drivers/keyboard.h"
 
 void init(void){
 
-/*	isrInstall();
+	isrInstall();
 	setIdtr();
-	setIdt((unsigned int) &IDTR);*/
+	setIdt((unsigned int) &IDTR);
 
-	//initKeyboard();
+    cursorEnable(0, 15);
 
-	//kprint(convertIntAscii(125), 0, 0x0F);
+    keyboardInit();
 
-	while(0){}
+    kprint("brrrrrrrrrt. Here is the cursor ->\0", 190, 0x0E);
+
+	while(1){}
 }

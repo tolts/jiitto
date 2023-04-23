@@ -7,13 +7,13 @@
 #define ps2KeyboardDataPort 0x60
 #define ps2KeyboardStatusAndCommandPort 0x64
 
-#define irqKeyboard 1
+#define irqKeyboard 33
 
-void portByteOut(unsigned char port, unsigned char data){
+void portByteOut(unsigned short port, unsigned char data){
     __asm__("out %%al, %%dx" : : "a" (data), "d" (port));
 }
 
-char portByteIn(unsigned char port){
+char portByteIn(unsigned short port){
     unsigned char data;
     __asm__("in %%dx, %%al" : "=a" (data) : "d" (port));
     return data;

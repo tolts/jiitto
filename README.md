@@ -1,1 +1,1 @@
-Nothing of great importance here. 
+空は空。

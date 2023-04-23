@@ -58,6 +58,7 @@
 setIdt:
 	cli
 	lidt [eax]
+	sti
 	ret
 
 isrPreHandling:

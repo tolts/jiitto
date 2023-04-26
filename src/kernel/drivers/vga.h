@@ -53,6 +53,4 @@ void kprintc(char c, int x, int y, char colour)
 	unsigned char* vga = (unsigned char*) 0xB8000 + (pos << 1);
 	*vga = c;
 	*(vga + 1) = colour;
-	
-	cursorMove(pos);
 }

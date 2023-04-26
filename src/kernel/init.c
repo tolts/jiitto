@@ -38,7 +38,7 @@ void init(void){
 
     keyboardInit();
 
-    kprint("brrrrrrrrrtr. Here is the cursor ->\0", 190, 0x0E);
+    kprint("brrrrrrrrrtrr. Here is the cursor ->\0", 190, 0x0E);
 
 	while(1){}
 }

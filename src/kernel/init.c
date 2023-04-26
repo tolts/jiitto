@@ -61,7 +61,7 @@ typedef int int32_t;
 #define OFFSET_Y 0
 
 #define MAX_DIST  1024	// CONSTANTS 1.0
-#define MAX_COUNT 5
+#define MAX_COUNT 10
 
 #define WORLD_X 10
 #define WORLD_Y 10
@@ -593,12 +593,14 @@ static void Minecraft(void)
 	
 	World[11] = 1;
 	
-	//Render();
+	Render();
 	
-	while() // /!\ Détecter une touche
+	/*
+	while(1) // /!\ Détecter une touche
 	{
 		CamControls();
 	}
+	*/
 }
 
 void init(void)

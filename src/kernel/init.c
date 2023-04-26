@@ -99,8 +99,8 @@ uint8_t World[WORLD_SIZE];
 uint8_t Face;
 int32_t SampleX, SampleY;
 
-uint32_t SideTexture[2] =	{ 0xffff7e3c, 0x00089aff };
-uint32_t TopTexture[2] =	{ 0x04261000, 0x00226010 };
+uint32_t SideTexture[2] =   { 0xffff7e3c, 0x00089aff };
+uint32_t TopTexture[2] =    { 0x04261000, 0x00226010 };
 uint32_t BottomTexture[2] = { 0x7eff7e24, 0x247eff7e };
 uint32_t *CurrentTexture;
 int32_t TextureX, TextureY;
@@ -607,8 +607,8 @@ void init(void)
 	setIdtr();
 	setIdt((unsigned int) &IDTR);
 
-    cursorEnable(0, 15);
-    keyboardInit();
+	cursorEnable(0, 15);
+	keyboardInit();
 
 	Minecraft();
 

@@ -14,9 +14,9 @@ void cursorDisable(void){
 
 void cursorMove(int x){
     portByteOut(0x3D4, 0x0F);
-    portByteOut(0x3D5, (unsigned short)(x & 0xFF));
+    portByteOut(0x3D5, (unsigned char)(x & 0xFF));
     portByteOut(0x3D4, 0x0E);
-    portByteOut(0x3D5, (unsigned short)((x >> 8) & 0xFF));
+    portByteOut(0x3D5, (unsigned char)((x >> 8) & 0xFF));
 }
 
 unsigned short cursorPos(void){
@@ -30,7 +30,7 @@ unsigned short cursorPos(void){
 
 void clear(void){
 	unsigned char* address = (unsigned char*) 0xB8000;
-	for(unsigned int i = 0; i <= 2000; i++){
+	for(short i = 0; i <= 2000; i++){
 		*address++ = 0x0;
 		*address++ = 0x0F;
 	}
@@ -38,11 +38,9 @@ void clear(void){
 
 void kprint(char* str, int x, char colour){
 	unsigned char* vga = (unsigned char*) 0xB8000 + (x << 1);
-	int len = 0;
-	while(*str != 0){
+	while(*str != 0 /*&& (int)vga <= 0xB87D0*/){
 		*vga++ = *str++;
 		*vga++ = colour;
-		len++;
 	}
-	cursorMove(x + len);
+	cursorMove(((int)(vga++) - 0xB8000) / 2);
 }

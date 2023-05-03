@@ -7,6 +7,10 @@ void picAcknowledge(unsigned char nirq){
 	portByteOut(picMasterCommand, picEndInterrupt);
 }
 
+void picWait(void){
+	portByteOut(0x80, 0);
+}
+
 void picRemap(unsigned char ICW2Master, unsigned char ICW2Slave){
 
 	unsigned char maskMaster = portByteIn(picMasterData), maskSlave = portByteIn(picSlaveData);

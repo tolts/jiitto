@@ -1,8 +1,12 @@
 
-#include "miscellaneous/types.h"
+#include "misc/types.c"
+#include "misc/io.c"
 
-#include "cpu/gdt.h"
-#include "idt/idt.h"
+#include "cpu/gdt.c"
+#include "cpu/pic.c"
+#include "cpu/isr.c"
+#include "cpu/isrDef.h"//ignore error
+#include "cpu/idt.c"
 
 #define VGA_ADDRESS 0xB8000
 
@@ -23,17 +27,17 @@
 #define VGA_COLOUR_BROWN_LIGHT 14
 #define VGA_COLOUR_WHITE 15
 
-uint8_t VGA_COLOUR_NOW = (VGA_COLOUR_BLUE<<4)|(VGA_COLOUR_RED);
+uint8_t VGA_COLOUR_NOW = (VGA_COLOUR_BLACK<<4)|(VGA_COLOUR_WHITE);
 
-void changeTextColourT(uint8_t bg, uint8_t fg){
+void changeTextColourt(uint8_t bg, uint8_t fg){
   VGA_COLOUR_NOW = (bg<<4)|(fg);
 }
 
-uint8_t getTextColourSelectionT(void){
+uint8_t getTextColourSelectiont(void){
   return VGA_COLOUR_NOW;
 }
 
-void clearT(void){
+void cleart(void){
   uint8_t* VGA = (uint8_t*)VGA_ADDRESS;
   for(int16_t i = 1; i<=2000; i++){
     *VGA++ = VGA_COLOUR_BLACK;
@@ -41,7 +45,7 @@ void clearT(void){
   }
 }
 
-void printT(int8_t* t, int16_t x){
+void printt(int8_t* t, int16_t x){
   int8_t* VGA = (int8_t*)VGA_ADDRESS + (x<<2);
   while(*t != '\0'){
     *VGA++ = *t++;
@@ -50,12 +54,16 @@ void printT(int8_t* t, int16_t x){
 }
 
 void kernelInit(void){
-  printT("cc\0", 0);
-  changeTextColourT(VGA_COLOUR_GREEN, VGA_COLOUR_CYAN_LIGHT);
-  printT("ah\0", 4);
-
   gdtEncode();
+  printt("gdt encoded\0", 0);
 
   idtEncode();
+  printt("idt encoded\0", 40);
+
+  while(1);
+  //__asm__ __volatile__ ("int $0");
+  __asm__ __volatile__ ("hlt");
+
 
 }
+

@@ -1,27 +1,26 @@
 
 ENTRY(START)
 OUTPUT_FORMAT("binary")
-INPUT(boot.o)
+INPUT(boot.o kernel.o)
 
 SECTIONS{
   . = 0x7C00;
   .boot : AT(0x7C00) SUBALIGN(4){
-    __boot_start = .;
     *(.boot)
   }
-  . = 0x100000;
-  .text BLOCK(4K) : AT(0x100000) ALIGN(4K){
+  .text : {
     *(.text)
   }
-  .rodata BLOCK(4K) : ALIGN(4K){
+  .rodata : {
     *(.rodata)
   }
-  .data BLOCK(4K) : ALIGN(4K){
+  .data : {
     *(.data)
   }
-  .bss BLOCK(4K) : ALIGN(4K){
+  .bss : {
     *(.bss)
   }
 }
 
 OUTPUT(boot.img)
+

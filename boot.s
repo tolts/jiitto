@@ -4,12 +4,11 @@ section .boot
 global START
 
 bits 16
-;org 0x7C00
 
 ; bootsector
 
-; 1) load bootloader and else
-BOOT_SECTOR_LOAD_COUNT equ 2
+; load bootloader and else
+BOOT_SECTOR_LOAD_COUNT equ 7 ; HERE MAYBE LAYS YOUR PROBLEM
 BOOT_SECTOR_LOAD_CYLINDER equ 0
 BOOT_SECTOR_LOAD_HEAD equ 0
 BOOT_SECTOR_LOAD_SECTOR equ 2
@@ -53,21 +52,26 @@ BOOT_SECTOR_SIZE equ $-$$
 times 510-($-$$) db 0
 dw 0xAA55
 
+; bootloader (bootsector was previous sector)
+
+; switch to 32-bit protected mode
 KERNEL_INIT:
   ; fast A20 line switch
   in al, 0x92
   or al, 2
   out 0x02, al
 
-  ; switch to 32-bit protected mode
+  ; switch to pm mode
   cli
   lgdt [GDT_DESCRIPTOR]
   mov eax, cr0
   or eax, 1
   mov cr0, eax
+  sti
 
   jmp GDT_CODE_SEGMENT:KERNEL_PROTECTEDMODE_INIT
 
+; gdt
 GDT_NULL_SEG:
   dq 0
 
@@ -91,6 +95,9 @@ GDT_DESCRIPTOR:
   dw GDT_DESCRIPTOR-GDT_NULL_SEG-1
   dd GDT_NULL_SEG
 
+global GDT_CODE_SEGMENT
+global GDT_DATA_SEGMENT
+
 GDT_CODE_SEGMENT equ GDT_CODE_SEG-GDT_NULL_SEG
 GDT_DATA_SEGMENT equ GDT_DATA_SEG-GDT_NULL_SEG
 
@@ -99,8 +106,9 @@ KERNEL_INIT_SUCCESS:
 
 bits 32
 
-;extern kernel_main
+extern kernel_main
 
+; enter kernel
 KERNEL_PROTECTEDMODE_INIT:
   mov ax, GDT_DATA_SEGMENT
   mov ds, ax
@@ -109,12 +117,150 @@ KERNEL_PROTECTEDMODE_INIT:
   mov fs, ax
   mov gs, ax
 
+; set the stack (grows downwards)
   mov ebp, 0x9FC00
   mov esp, ebp
 
-  ;jmp GDT_CODE_SEGMENT:kernel_main
+  call kernel_main
 
   hlt
 
-times 1024-($-KERNEL_INIT) db 0
+times 512-($-KERNEL_INIT) db 0
+
+; ISRs for interrupts (also IRQs)
+
+section .text
+
+global ISR_STUB_TABLE
+
+ISR_STUB_TABLE:
+%assign i 0
+%rep 48
+  dd ISR_STUB_%+i
+%assign i i+1
+%endrep
+
+extern exceptionHandler
+
+ISR_COMMON_HANDLER:
+  pusha
+  mov ax, ds
+  push eax
+  mov ax, GDT_DATA_SEGMENT
+  mov ds, ax
+  mov ss, ax
+  mov es, ax
+  mov fs, ax
+  mov gs, ax
+  call exceptionHandler
+  pop eax
+  mov ds, ax
+  mov ss, ax
+  mov es, ax
+  mov fs, ax
+  mov gs, ax
+  popa
+  add esp, 8
+  sti
+  iretd
+
+extern irqHandler
+
+IRQ_COMMON_HANDLER:
+  pusha
+  mov ax, ds
+  push eax
+  mov ax, GDT_DATA_SEGMENT
+  mov ds, ax
+  mov ss, ax
+  mov es, ax
+  mov fs, ax
+  mov gs, ax
+  call irqHandler
+  pop eax
+  mov ds, ax
+  mov ss, ax
+  mov es, ax
+  mov fs, ax
+  mov gs, ax
+  popa
+  add esp, 8
+  sti
+  iretd
+
+%macro ISR_STUB_ERROR 1
+ISR_STUB_%+%1:
+  cli
+  push %1
+  jmp ISR_COMMON_HANDLER
+%endmacro
+
+%macro ISR_STUB_NO_ERROR 1
+ISR_STUB_%+%1:
+  cli
+  push 0
+  push %1
+  jmp ISR_COMMON_HANDLER
+%endmacro
+
+%macro IRQ_STUB 1
+ISR_STUB_%+%1:
+  cli
+  push %1
+  push 32+%1
+  jmp IRQ_COMMON_HANDLER
+%endmacro
+
+ISR_STUB_NO_ERROR 0
+ISR_STUB_NO_ERROR 1
+ISR_STUB_NO_ERROR 2
+ISR_STUB_NO_ERROR 3
+ISR_STUB_NO_ERROR 4
+ISR_STUB_NO_ERROR 5
+ISR_STUB_NO_ERROR 6
+ISR_STUB_NO_ERROR 7
+ISR_STUB_ERROR 8
+ISR_STUB_NO_ERROR 9
+ISR_STUB_ERROR 10
+ISR_STUB_ERROR 11
+ISR_STUB_ERROR 12
+ISR_STUB_ERROR 13
+ISR_STUB_ERROR 14
+ISR_STUB_NO_ERROR 15
+ISR_STUB_NO_ERROR 16
+ISR_STUB_ERROR 17
+ISR_STUB_NO_ERROR 18
+ISR_STUB_NO_ERROR 19
+ISR_STUB_NO_ERROR 20
+ISR_STUB_NO_ERROR 21
+ISR_STUB_NO_ERROR 22
+ISR_STUB_NO_ERROR 23
+ISR_STUB_NO_ERROR 24
+ISR_STUB_NO_ERROR 25
+ISR_STUB_NO_ERROR 26
+ISR_STUB_NO_ERROR 27
+ISR_STUB_NO_ERROR 28
+ISR_STUB_NO_ERROR 29
+ISR_STUB_ERROR 30
+ISR_STUB_NO_ERROR 31
+
+IRQ_STUB 32
+IRQ_STUB 33
+IRQ_STUB 34
+IRQ_STUB 35
+IRQ_STUB 36
+IRQ_STUB 37
+IRQ_STUB 38
+IRQ_STUB 39
+IRQ_STUB 40
+IRQ_STUB 41
+IRQ_STUB 42
+IRQ_STUB 43
+IRQ_STUB 44
+IRQ_STUB 45
+IRQ_STUB 46
+IRQ_STUB 47
+; align for a sector
+
+times 1024-($-ISR_STUB_TABLE) db 0
 

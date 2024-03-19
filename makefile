@@ -7,5 +7,4 @@ run:
 	i686-elf-gcc -c kernel.c -o kernel.o -ffreestanding
 	i686-elf-ld -T linker.ld
 	$(__RUN__)
-	rm boot.o kernel.o
 

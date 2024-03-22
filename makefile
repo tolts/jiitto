@@ -1,5 +1,4 @@
 
-__DIR__=$(shell cat dir.txt)
 __RUN__=$(shell cat run.txt)
 
 run:

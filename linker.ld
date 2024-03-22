@@ -8,16 +8,16 @@ SECTIONS{
   .boot : AT(0x7C00) SUBALIGN(4){
     *(.boot)
   }
-  .text : {
+  .text BLOCK(4K):ALIGN(4K) {
     *(.text)
   }
-  .rodata : {
+  .rodata BLOCK(4K):ALIGN(4K) {
     *(.rodata)
   }
-  .data : {
+  .data BLOCK(4K):ALIGN(4K) {
     *(.data)
   }
-  .bss : {
+  .bss BLOCK(4K):ALIGN(4K) {
     *(.bss)
   }
 }

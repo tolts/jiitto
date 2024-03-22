@@ -85,7 +85,8 @@ typedef struct{
   uint32_t offset;
 }__attribute__((packed)) idtDescriptor_t;
 
-__attribute__((aligned(0x10))) static idtSegmentDescriptor_t idt[256];
+//__attribute__((aligned(0x10))) 
+static idtSegmentDescriptor_t idt[256];
 
 static idtDescriptor_t idtr;
 

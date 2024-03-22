@@ -5,6 +5,8 @@
 
 // all things graphical
 
+// text mode stuff
+
 #define __BLACK__ 0x0
 #define __BLUE__ 0x1
 #define __GREEN__ 0x2
@@ -22,8 +24,6 @@
 #define __BROWN_LIGHT__ 0xE
 #define __WHITE__ 0xF
 
-// text mode stuff
-
 uint16_t vgaCoordinatePlanToLine(uint16_t x, uint16_t y){
   return 80*y+x;
 }
@@ -36,7 +36,7 @@ void kprintc(uint16_t character, uint16_t pos, uint16_t fg_colour, uint16_t bg_c
 
 void kprint(uint8_t* string, uint16_t pos, uint16_t fg_colour, uint16_t bg_colour){
   for(uint32_t i=0;string[i]!='\0';i++){
-    kprintc((uint16_t)(string[i]|(0<<8)), pos+i, fg_colour, bg_colour);
+    kprintc(((uint16_t)string[i])|(0<<8), pos+i, fg_colour, bg_colour);
   }
   return;
 }

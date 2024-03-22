@@ -8,7 +8,7 @@ bits 16
 ; bootsector
 
 ; load bootloader and else
-BOOT_SECTOR_LOAD_COUNT equ 7 ; HERE MAYBE LAYS YOUR PROBLEM
+BOOT_SECTOR_LOAD_COUNT equ 34 ; HERE MAYBE LAYS YOUR PROBLEM
 BOOT_SECTOR_LOAD_CYLINDER equ 0
 BOOT_SECTOR_LOAD_HEAD equ 0
 BOOT_SECTOR_LOAD_SECTOR equ 2
@@ -67,7 +67,6 @@ KERNEL_INIT:
   mov eax, cr0
   or eax, 1
   mov cr0, eax
-  sti
 
   jmp GDT_CODE_SEGMENT:KERNEL_PROTECTEDMODE_INIT
 
@@ -121,9 +120,9 @@ KERNEL_PROTECTEDMODE_INIT:
   mov ebp, 0x9FC00
   mov esp, ebp
 
-  call kernel_main
+  call GDT_CODE_SEGMENT:kernel_main
 
-  hlt
+  jmp $
 
 times 512-($-KERNEL_INIT) db 0
 
@@ -260,7 +259,4 @@ IRQ_STUB 44
 IRQ_STUB 45
 IRQ_STUB 46
 IRQ_STUB 47
-; align for a sector
-
-times 1024-($-ISR_STUB_TABLE) db 0
 

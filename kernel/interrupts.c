@@ -101,7 +101,7 @@ void idtSetSegmentDescriptor(uint8_t vector, void* isr, uint8_t flags){
   segmentDescriptor->offset48_63=(uint32_t)isr>>16;
 }
 
-void idtInit(){
+void idtInit(uint8_t* message){
   idtr.offset=(uint32_t)&idt[0];
   idtr.size=(uint16_t)sizeof(idtSegmentDescriptor_t)*256-1;
   for(uint8_t vector=0; vector<32; vector++){
@@ -111,7 +111,9 @@ void idtInit(){
   for(uint8_t vector=0; vector<16; vector++){
     idtSetSegmentDescriptor(vector+32, ISR_STUB_TABLE[vector+32], 0x8E);
   }
+  outb(0x21,0xFD);outb(0xA1,0xFF);
   __asm__ __volatile__ ("cli; lidt (%0); sti"::"r"(&idtr));
+  kprint(message, 17, __RED__, __BLUE__);
   return;
 }
 

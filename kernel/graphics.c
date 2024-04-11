@@ -7,6 +7,9 @@
 
 // text mode stuff
 
+#define __VGA_WIDTH__ 80
+#define __VGA_HEIGHT__ 25
+
 #define __BLACK__ 0x0
 #define __BLUE__ 0x1
 #define __GREEN__ 0x2

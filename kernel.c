@@ -2,6 +2,7 @@
 #include "lib/def.c"
 #include "kernel/graphics.c"
 #include "kernel/interrupts.c"
+#include "kernel/cursor.c"
 #include "kernel/keyboard.c"
 
 void kernel_main(void){
@@ -11,7 +12,7 @@ void kernel_main(void){
 
   idtInit("idt set");
   keyboardInit("keyboard init");
+  cursorEnable(0x0, 0xF);
 
-
+  cursorPosition=cursorGetPosition();
 }
-

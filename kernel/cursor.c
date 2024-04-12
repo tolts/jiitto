@@ -28,6 +28,14 @@ void cursorDisable(void){
 }
 
 void cursorMove(uint16_t position){
+  while(position>=2000){
+    uint16_t* buffer=(uint16_t*)0xB8000;
+    for(uint16_t i=0; i<2000; i++){
+      buffer[i]=buffer[i+80];
+    }
+    position-=80;
+  }
+  cursorPosition=position;
   outb(0x3D4, 0x0F);
   outb(0x3D5, (uint8_t)(position&0xFF));
   outb(0x3D4, 0x0E);

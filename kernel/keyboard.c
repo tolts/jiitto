@@ -35,6 +35,7 @@ bit | key state
 17  | scrollLock
 18  | altRightPressed
 19  | controlRightPressed
+20  | previously 0xE0
 */
 
 #define keyboardScancodeCase(scancode, position) case scancode:\
@@ -47,53 +48,80 @@ break
 void keyboardHandler(){
   __asm__ __volatile__ ("cli");
   uint8_t scancode=inb(0x60);
-  switch(scancode){
-    case 0x0:
-      kprint("KEYBOARD ERROR (UNKNOWN SCANCODE)\0", cursorPosition, __RED__, __BLUE__);
-      cursorPosition+=33;
-      return;
-    keyboardScancodeCase(0x01, 0);
-    case 0x0E://backspace
-      kprintc('\0', --cursorPosition, __WHITE__, __BLACK__);
-      break;
-    case 0x0F://tab
-      cursorPosition+=2;
-      break;
-    case 0x1C://enter
-      cursorPosition+=__VGA_WIDTH__-(cursorPosition%__VGA_WIDTH__);
-      break;
-    keyboardScancodeCase(0x1D, 1);
-    keyboardScancodeCase(0x2A, 2);
-    keyboardScancodeCase(0x36, 3);
-    keyboardScancodeCase(0x38, 4);
-    case 0x3A://caps lock
-      keyboardKeyStates^=(__TRUE__<<5);
-      break;
-    keyboardScancodeCase(0x3B, 6);
-    keyboardScancodeCase(0x3C, 7);
-    keyboardScancodeCase(0x3D, 8);
-    keyboardScancodeCase(0x3E, 9);
-    keyboardScancodeCase(0x3F, 10);
-    keyboardScancodeCase(0x40, 11);
-    keyboardScancodeCase(0x41, 12);
-    keyboardScancodeCase(0x42, 13);
-    keyboardScancodeCase(0x43, 14);
-    keyboardScancodeCase(0x44, 15);
-    keyboardScancodeCase(0x45, 16);
-    keyboardScancodeCase(0x46, 17);
-    keyboardScancodeCase(0x57, 18);
-    keyboardScancodeCase(0x58, 19);
-    default:
-      if(scancode>=0x80){
+  if(keyboardKeyStates>>20){
+    switch(scancode){
+      case 0x48:
+        cursorPosition-=80;
+        keyboardKeyStates&=~(__TRUE__<<20);
         break;
-      }
-      if((keyboardKeyStates>>2)||(keyboardKeyStates>>3)||(keyboardKeyStates>>5)){
-        kprintc(keyboardScancodesUppercase[scancode], cursorPosition++, __WHITE__, __BLACK__);
+      case 0x4B:
+        cursorPosition--;
+        keyboardKeyStates&=~(__TRUE__<<20);
         break;
-      }else{
-        kprintc(keyboardScancodesLowercase[scancode], cursorPosition++, __WHITE__, __BLACK__);
+      case 0x4D:
+        cursorPosition++;
+        keyboardKeyStates&=~(__TRUE__<<20);
         break;
-      }
+      case 0x50:
+        cursorPosition+=80;
+        keyboardKeyStates&=~(__TRUE__<<20);
+        break;
+      default:
+        keyboardKeyStates&=~(__TRUE__<<20);
+        break;
+    }
+  }else{
+    switch(scancode){
+      case 0x0:
+        kprint("KEYBOARD ERROR (UNKNOWN SCANCODE)\0", cursorPosition, __RED__, __BLUE__);
+        cursorPosition+=33;
+        return;
+      keyboardScancodeCase(0x01, 0);
+      case 0x0E://backspace
+        kprintc('\0', --cursorPosition, __WHITE__, __BLACK__);
+        break;
+      case 0x0F://tab
+        cursorPosition+=2;
+        break;
+      case 0x1C://enter
+        cursorPosition+=__VGA_WIDTH__-(cursorPosition%__VGA_WIDTH__);
+        break;
+      keyboardScancodeCase(0x1D, 1);
+      keyboardScancodeCase(0x2A, 2);
+      keyboardScancodeCase(0x36, 3);
+      keyboardScancodeCase(0x38, 4);
+      case 0x3A://caps lock
+        keyboardKeyStates^=(__TRUE__<<5);
+        break;
+      keyboardScancodeCase(0x3B, 6);
+      keyboardScancodeCase(0x3C, 7);
+      keyboardScancodeCase(0x3D, 8);
+      keyboardScancodeCase(0x3E, 9);
+      keyboardScancodeCase(0x3F, 10);
+      keyboardScancodeCase(0x40, 11);
+      keyboardScancodeCase(0x41, 12);
+      keyboardScancodeCase(0x42, 13);
+      keyboardScancodeCase(0x43, 14);
+      keyboardScancodeCase(0x44, 15);
+      keyboardScancodeCase(0x45, 16);
+      keyboardScancodeCase(0x46, 17);
+      keyboardScancodeCase(0x57, 18);
+      keyboardScancodeCase(0x58, 19);
+      case 0xE0:
+        keyboardKeyStates|=(__TRUE__<<20);
+        break;
+      default:
+        if(scancode>=0x80){
+          break;
+        }
+        if((keyboardKeyStates>>2)||(keyboardKeyStates>>3)||(keyboardKeyStates>>5)){
+          kprintc(keyboardScancodesUppercase[scancode], cursorPosition++, __WHITE__, __BLACK__);
+          break;
+        }else{
+          kprintc(keyboardScancodesLowercase[scancode], cursorPosition++, __WHITE__, __BLACK__);
+          break;
+        }
+    }
   }
   cursorMove(cursorPosition);
   picEOI(1);

@@ -95,7 +95,7 @@ extern void* ISR_STUB_TABLE[48];
 void idtSetSegmentDescriptor(uint8_t vector, void* isr, uint8_t flags){
   idtSegmentDescriptor_t* segmentDescriptor=&idt[vector];
   segmentDescriptor->offset0_15=(uint32_t)isr&0xFFFF;
-  segmentDescriptor->segmentSelector16_31=__gdtCodeSegment__;//GDT_CODE_SEGMENT;
+  segmentDescriptor->segmentSelector16_31=__GDT_CODE_SEGMENT__;//GDT_CODE_SEGMENT;
   segmentDescriptor->reserved32_39=0;
   segmentDescriptor->typeAttributes40_47=flags;
   segmentDescriptor->offset48_63=(uint32_t)isr>>16;

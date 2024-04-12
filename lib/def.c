@@ -28,8 +28,8 @@ uint32_t strLen(uint8_t* string){
 #define __TRUE__ 1
 #define __FALSE__ 0
 
-#define __gdtCodeSegment__ 0x08
-#define __gdtDataSegment__ 0x10
+#define __GDT_CODE_SEGMENT__ 0x08
+#define __GDT_DATA_SEGMENT__ 0x10
 
 // io
 

@@ -122,6 +122,7 @@ KERNEL_PROTECTEDMODE_INIT:
 
   call GDT_CODE_SEGMENT:kernel_main
 
+; main loop is here
   jmp $
 
 times 512-($-KERNEL_INIT) db 0

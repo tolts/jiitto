@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "../lib/def.c"
+#include "../../lib/def.c"
 #include "graphics.c"
 
 // everything interrupts
@@ -101,7 +101,11 @@ void idtSetSegmentDescriptor(uint8_t vector, void* isr, uint8_t flags){
   segmentDescriptor->offset48_63=(uint32_t)isr>>16;
 }
 
-void idtInit(uint8_t* message){
+void idtInit(
+#ifdef __LOG__
+  uint8_t* message
+#endif
+){
   idtr.offset=(uint32_t)&idt[0];
   idtr.size=(uint16_t)sizeof(idtSegmentDescriptor_t)*256-1;
   for(uint8_t vector=0; vector<32; vector++){
@@ -113,7 +117,9 @@ void idtInit(uint8_t* message){
   }
   outb(0x21,0xFD);outb(0xA1,0xFF);
   __asm__ __volatile__ ("cli; lidt (%0); sti"::"r"(&idtr));
-  kprint(message, 17, __RED__, __BLUE__);
+#ifdef __LOG__
+  kprint(message, 17, __WHITE__, __BLACK__);
+#endif
   return;
 }
 

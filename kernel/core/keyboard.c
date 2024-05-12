@@ -1,10 +1,11 @@
 
 #pragma once
 
-#include "../lib/def.c"
+#include "../../lib/def.c"
 #include "graphics.c"
 #include "interrupts.c"
 #include "cursor.c"
+#include "terminal.c"
 
 #define keyboardInterruptVector 33
 
@@ -51,19 +52,23 @@ void keyboardHandler(){
   if(keyboardKeyStates>>20){
     switch(scancode){
       case 0x48:
-        cursorPosition-=80;
+      //  cursorMove(cursorPosition-=80);
         keyboardKeyStates&=~(__TRUE__<<20);
         break;
       case 0x4B:
-        cursorPosition--;
+        cursorMove(--cursorPosition);
         keyboardKeyStates&=~(__TRUE__<<20);
         break;
       case 0x4D:
-        cursorPosition++;
+        if(!(terminalBufferEndPoint>=cursorPosition+1)){
+          keyboardKeyStates&=~(__TRUE__<<20);
+          break;
+        }
+        cursorMove(++cursorPosition);
         keyboardKeyStates&=~(__TRUE__<<20);
         break;
       case 0x50:
-        cursorPosition+=80;
+      //  cursorMove(cursorPosition+=80);
         keyboardKeyStates&=~(__TRUE__<<20);
         break;
       default:
@@ -74,17 +79,20 @@ void keyboardHandler(){
     switch(scancode){
       case 0x0:
         kprint("KEYBOARD ERROR (UNKNOWN SCANCODE)\0", cursorPosition, __RED__, __BLUE__);
-        cursorPosition+=33;
         return;
       keyboardScancodeCase(0x01, 0);
       case 0x0E://backspace
-        kprintc('\0', --cursorPosition, __WHITE__, __BLACK__);
+        cursorMove(--cursorPosition);
+        kprintc('\0', cursorPosition--, __WHITE__, __BLACK__);
         break;
       case 0x0F://tab
-        cursorPosition+=2;
+        kprintc(' ', cursorPosition, __WHITE__, __BLACK__);
+        kprintc(' ', cursorPosition, __WHITE__, __BLACK__);
         break;
       case 0x1C://enter
-        cursorPosition+=__VGA_WIDTH__-(cursorPosition%__VGA_WIDTH__);
+        terminalInput(terminalBufferStartPoint, terminalBufferEndPoint);
+        cursorMove(cursorPosition+=__VGA_WIDTH__-(cursorPosition%__VGA_WIDTH__));
+        terminalInit(terminalHeader);
         break;
       keyboardScancodeCase(0x1D, 1);
       keyboardScancodeCase(0x2A, 2);
@@ -115,24 +123,29 @@ void keyboardHandler(){
           break;
         }
         if((keyboardKeyStates>>2)||(keyboardKeyStates>>3)||(keyboardKeyStates>>5)){
-          kprintc(keyboardScancodesUppercase[scancode], cursorPosition++, __WHITE__, __BLACK__);
+          kprintc(keyboardScancodesUppercase[scancode], cursorPosition, __WHITE__, __BLACK__);
           break;
         }else{
-          kprintc(keyboardScancodesLowercase[scancode], cursorPosition++, __WHITE__, __BLACK__);
+          kprintc(keyboardScancodesLowercase[scancode], cursorPosition, __WHITE__, __BLACK__);
           break;
         }
     }
   }
-  cursorMove(cursorPosition);
   picEOI(1);
   __asm__ __volatile__ ("sti");
   return;
 }
 
-void keyboardInit(uint8_t* message){
+void keyboardInit(
+#ifdef __LOG__
+uint8_t* message
+#endif
+){
   idtSetSegmentDescriptor(keyboardInterruptVector, keyboardHandler, 0x8E);
 //  picClearMask(keyboardInterruptVector-32);
-  kprint(message, 0, __GREEN_LIGHT__, __GREY_LIGHT__);
+#ifdef __LOG__
+  kprint(message, 0, __WHITE__, __BLACK__);
+#endif
   return;
 }
 

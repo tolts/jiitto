@@ -1,7 +1,8 @@
 
 #pragma once
 
-#include "../lib/def.c"
+#include "../../lib/def.c"
+#include "cursor.c"
 
 // all things graphical
 
@@ -32,12 +33,16 @@ uint16_t vgaCoordinatePlanToLine(uint16_t x, uint16_t y){
 }
 
 void kprintc(uint16_t character, uint16_t pos, uint16_t fg_colour, uint16_t bg_colour){
+  // different from printf as kprintc moves the cursor
   uint16_t* buffer=(uint16_t*)0xB8000+pos;
   *buffer=character|(bg_colour<<12)|((fg_colour&0x0F)<<8);
+  cursorMove(++cursorPosition);
+  terminalBufferEndPoint++;
   return;
 }
 
 void kprint(uint8_t* string, uint16_t pos, uint16_t fg_colour, uint16_t bg_colour){
+  // different from printf as kprintc moves the cursor
   for(uint32_t i=0;string[i]!='\0';i++){
     kprintc(((uint16_t)string[i])|(0<<8), pos+i, fg_colour, bg_colour);
   }

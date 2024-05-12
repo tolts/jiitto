@@ -1,8 +1,7 @@
 
 #pragma once
 
-#include "../lib/def.c"
-#include "graphics.c"
+#include "../../lib/def.c"
 
 uint16_t cursorPosition;
 
@@ -28,6 +27,10 @@ void cursorDisable(void){
 }
 
 void cursorMove(uint16_t position){
+  if(terminalBufferStartPoint>position){
+    cursorPosition++;
+    return;
+  }
   while(position>=2000){
     uint16_t* buffer=(uint16_t*)0xB8000;
     for(uint16_t i=0; i<2000; i++){

@@ -19,6 +19,21 @@ uint32_t strLen(uint8_t* string){
   return len;
 }
 
+uint8_t strEq(uint8_t* A, uint8_t* B){
+  if(strLen(A)==strLen(B)){
+    return 0;
+  }else{/*
+    while(*A!='\0'){
+      if(*A!=*B){
+        return 0;
+      }
+      A++;
+      B++;
+    }*/
+  }
+  return 1;
+}
+
 // toolings
 
 #define __HALT__ __asm__ __volatile__ ("hlt")

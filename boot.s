@@ -17,6 +17,10 @@ BOOT_SECTOR_LOAD_DRIVE_NUMBER_FLOPPY equ 0
 BOOT_SECTOR_LOAD_DRIVE_NUMBER_HARD_DISK equ 0x80
 
 START:
+  mov ah, 0
+  mov al, 3
+  int 0x10
+
   mov ah, 2
   mov al, BOOT_SECTOR_LOAD_COUNT
   mov ch, BOOT_SECTOR_LOAD_CYLINDER&0xFF
@@ -105,7 +109,7 @@ KERNEL_INIT_SUCCESS:
 
 bits 32
 
-extern kernel_main
+extern core_main
 
 ; enter kernel
 KERNEL_PROTECTEDMODE_INIT:
@@ -120,7 +124,7 @@ KERNEL_PROTECTEDMODE_INIT:
   mov ebp, 0x9FC00
   mov esp, ebp
 
-  call GDT_CODE_SEGMENT:kernel_main
+  call GDT_CODE_SEGMENT:core_main
 
 ; main loop is here
   jmp $
@@ -131,16 +135,16 @@ times 512-($-KERNEL_INIT) db 0
 
 section .text
 
-global ISR_STUB_TABLE
+global core_isr_stub_table
 
-ISR_STUB_TABLE:
+core_isr_stub_table:
 %assign i 0
 %rep 48
   dd ISR_STUB_%+i
 %assign i i+1
 %endrep
 
-extern exceptionHandler
+extern core_exception_handler
 
 ISR_COMMON_HANDLER:
   pusha
@@ -152,7 +156,7 @@ ISR_COMMON_HANDLER:
   mov es, ax
   mov fs, ax
   mov gs, ax
-  call exceptionHandler
+  call core_exception_handler
   pop eax
   mov ds, ax
   mov ss, ax
@@ -164,7 +168,7 @@ ISR_COMMON_HANDLER:
   sti
   iretd
 
-extern irqHandler
+extern core_irq_handler
 
 IRQ_COMMON_HANDLER:
   pusha
@@ -176,7 +180,7 @@ IRQ_COMMON_HANDLER:
   mov es, ax
   mov fs, ax
   mov gs, ax
-  call irqHandler
+  call core_irq_handler
   pop eax
   mov ds, ax
   mov ss, ax

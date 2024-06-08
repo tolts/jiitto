@@ -1,39 +1,32 @@
 
-//#define __LOG__ // define to have all logs
+#define LOG // define to have all logs
 
-#include "lib/def.c"
-#include "lib/printf.c"
+#include "include/core.h"
 
 // general definitions
 
-uint16_t terminalBufferStartPoint;
-uint16_t terminalBufferEndPoint;
+uint16_t *core_cursor_position;
 
-uint8_t* terminalHeader="@\0";
-
-#include "kernel/core/cursor.c"
 #include "kernel/core/graphics.c"
 #include "kernel/core/interrupts.c"
 #include "kernel/core/keyboard.c"
-#include "kernel/core/terminal.c"
 
-// kernel initialisation (main loop is in boot.s)
+void core_main(void){
 
-void kernel_main(void){
+  *core_cursor_position=3;
 
-  idtInit(
-#ifdef __LOG__
+  core_idt_init(
+#ifdef LOG
     "interrupts enabled\0"
 #endif
 );
-  keyboardInit(
-#ifdef __LOG__
+  core_keyboard_init(
+#ifdef LOG
     "keyboard enabled\0"
 #endif
 );
 
-  cursorEnable(0x0, 0xF);
-  cursorPosition=cursorGetPosition();
-  terminalInit(terminalHeader);
+  core_log_str("Hello world!\0", core_cursor_position, WHITE, BLACK);
+  core_log_str("Again, hello!\0", core_cursor_position, WHITE, BLACK);
 }
 

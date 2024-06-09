@@ -102,11 +102,10 @@ void core_idt_set_segment_descriptor(uint8_t vector, void* isr, uint8_t flags){
   return;
 }
 
-void core_idt_init(
+void core_idt_init(void){
 #ifdef LOG
-  uint8_t* message
+  core_log_str("Initializing interrupts ... \0", core_cursor_position, WHITE, BLACK);
 #endif
-){
   idtr.offset=(uint32_t)&idt[0];
   idtr.size=(uint16_t)sizeof(core_idt_segment_descriptor_t)*256-1;
   for(uint8_t vector=0; vector<32; vector++){
@@ -119,7 +118,7 @@ void core_idt_init(
   core_outb(0x21,0xFD);core_outb(0xA1,0xFF);
   __asm__ __volatile__ ("cli; lidt (%0); sti"::"r"(&idtr));
 #ifdef LOG
-  core_log_str(message, core_cursor_position, WHITE, BLACK);
+  core_log_str("[DONE]\n\0", core_cursor_position, WHITE, BLACK);
 #endif
   return;
 }

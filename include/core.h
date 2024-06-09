@@ -13,7 +13,7 @@ typedef long long int int64_t;
 typedef unsigned long long int uint64_t;
 //typedef void* uintptr_t;
 
-uint32_t core_str_len(uint8_t* string){
+static inline uint32_t core_str_len(uint8_t* string){
   uint32_t len;
   while(string[++len]);
   return len;

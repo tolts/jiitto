@@ -1,7 +1,7 @@
 
 ENTRY(START)
 OUTPUT_FORMAT("binary")
-INPUT(boot.o kernel.o)
+INPUT(boot.o kernel.o sys.o)
 
 SECTIONS{
   . = 0x7C00;

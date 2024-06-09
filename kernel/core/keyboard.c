@@ -15,7 +15,7 @@ struct core_keyboard_key_states_t{
 void core_keyboard_handler(){
   __asm__ __volatile__ ("cli");
   uint8_t scancode=core_inb(0x60);
-  core_log(scancode, *core_cursor_position, WHITE, BLACK);
+//  core_log(scancode, *core_cursor_position, WHITE, BLACK); // to see scancode ascii equivalents
   if(scancode>=0x81){
     scancode-=0x80;
   }
@@ -29,15 +29,14 @@ void core_keyboard_handler(){
   return;
 }
 
-void core_keyboard_init(
+void core_keyboard_init(void){
 #ifdef LOG
-  uint8_t* message
+  core_log_str("Initializing keyboard ... \0", core_cursor_position, WHITE, BLACK);
 #endif
-){
   core_idt_set_segment_descriptor(KEYBOARD_INTERRUPT_VECTOR, core_keyboard_handler, 0x8E);
 //  picClearMask(keyboardInterruptVector-32);
 #ifdef LOG
-  core_log_str(message, core_cursor_position, WHITE, BLACK);
+  core_log_str("[DONE]\n\0", core_cursor_position, WHITE, BLACK);
 #endif
   return;
 }

@@ -36,7 +36,11 @@ void core_log(uint8_t character, uint16_t pos, uint16_t fg_colour, uint16_t bg_c
 
 void core_log_str(uint8_t* string, uint16_t *pos, uint16_t fg_colour, uint16_t bg_colour){
   for(uint32_t i=0;string[i];i++){
-    core_log(string[i], (*pos)++, fg_colour, bg_colour);
+    if(string[i]==10){
+      *pos+=VGA_WIDTH-((*pos)%VGA_WIDTH);
+    }else{
+      core_log(string[i], (*pos)++, fg_colour, bg_colour);
+    }
   }
   return;
 }

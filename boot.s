@@ -21,6 +21,10 @@ START:
   mov al, 3
   int 0x10
 
+  mov ah, 0x01
+  mov ch, 0x3F
+  int 0x10
+
   mov ah, 2
   mov al, BOOT_SECTOR_LOAD_COUNT
   mov ch, BOOT_SECTOR_LOAD_CYLINDER&0xFF
@@ -104,12 +108,10 @@ global GDT_DATA_SEGMENT
 GDT_CODE_SEGMENT equ GDT_CODE_SEG-GDT_NULL_SEG
 GDT_DATA_SEGMENT equ GDT_DATA_SEG-GDT_NULL_SEG
 
-KERNEL_INIT_SUCCESS:
-  db 'END OF BOOTSECTOR & ACCESS TO KERNEL', 0
-
 bits 32
 
 extern core_main
+extern sys_main
 
 ; enter kernel
 KERNEL_PROTECTEDMODE_INIT:
@@ -125,8 +127,8 @@ KERNEL_PROTECTEDMODE_INIT:
   mov esp, ebp
 
   call GDT_CODE_SEGMENT:core_main
+  call GDT_CODE_SEGMENT:sys_main
 
-; main loop is here
   jmp $
 
 times 512-($-KERNEL_INIT) db 0

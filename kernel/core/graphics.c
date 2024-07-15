@@ -29,13 +29,20 @@
 
 void core_log(uint8_t character, uint16_t pos, uint16_t fg_colour, uint16_t bg_colour){
   // different from printf as core_log moves the cursor
-  uint16_t* buffer=(uint16_t*)0xB8000+pos;
+  uint16_t *buffer=(uint16_t*)0xB8000+pos;
   *buffer=(uint16_t)character|(bg_colour<<12)|((fg_colour&0x0F)<<8);
   return;
 }
 
-void core_log_str(uint8_t* string, uint16_t *pos, uint16_t fg_colour, uint16_t bg_colour){
+void core_log_str(uint8_t *string, uint16_t *pos, uint16_t fg_colour, uint16_t bg_colour){
   for(uint32_t i=0;string[i];i++){
+    while(*pos>=2000){
+      uint16_t *buf=(uint16_t*)0xB8000;
+      for(uint16_t i=0; i<2000; i++){
+        buf[i]=buf[i+80];
+      }
+      *pos-=80;
+    }
     if(string[i]==10){
       *pos+=VGA_WIDTH-((*pos)%VGA_WIDTH);
     }else{

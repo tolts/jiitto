@@ -1,4 +1,10 @@
 
+/*
+* Only for kernel/core. Contains useful definitions, constants, etc.
+*/
+
+
+
 #pragma once
 
 // type def

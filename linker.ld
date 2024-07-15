@@ -1,7 +1,7 @@
 
-ENTRY(START)
+ENTRY(BS_jmpBoot)
 OUTPUT_FORMAT("binary")
-INPUT(boot.o kernel.o sys.o)
+INPUT(boot.o kernel.o)
 
 SECTIONS{
   . = 0x7C00;
@@ -22,5 +22,5 @@ SECTIONS{
   }
 }
 
-OUTPUT(boot.img)
+OUTPUT(jiitto.iso)
 

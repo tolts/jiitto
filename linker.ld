@@ -1,5 +1,5 @@
 
-ENTRY(START)
+ENTRY(BS_jmpBoot)
 OUTPUT_FORMAT("binary")
 INPUT(boot.o kernel.o)
 
@@ -22,5 +22,5 @@ SECTIONS{
   }
 }
 
-OUTPUT(boot.img)
+OUTPUT(jiitto.iso)
 

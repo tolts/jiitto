@@ -1,68 +1,68 @@
 
 #pragma once
 
-#include "../../lib/def.c"
+#include "../../include/core.h"
 #include "graphics.c"
 
 // everything interrupts
 
 // PIC
 
-#define __PIC1__ 0x20
-#define __PIC2__ 0xA0
-#define __PIC1_COMMAND__ __PIC1__
-#define __PIC2_COMMAND__ __PIC2__
-#define __PIC1_DATA__ (__PIC1__+1)
-#define __PIC2_DATA__ (__PIC2__+1)
+#define PIC1 0x20
+#define PIC2 0xA0
+#define PIC1_COMMAND PIC1
+#define PIC2_COMMAND PIC2
+#define PIC1_DATA (PIC1+1)
+#define PIC2_DATA (PIC2+1)
 
-#define __PIC_EOI__ 0x20
+#define PIC_EOI 0x20
 
-#define __PIC1_OFFSET__ 0x20
-#define __PIC2_OFFSET__ 0x28
+#define PIC1_OFFSET 0x20
+#define PIC2_OFFSET 0x28
 
-void picEOI(uint8_t irq){
+void core_pic_eoi(uint8_t irq){
   if(irq>=8){
-    outb(__PIC2_COMMAND__, __PIC_EOI__);
+    core_outb(PIC2_COMMAND, PIC_EOI);
   }
-  outb(__PIC1_COMMAND__, __PIC_EOI__);
+  core_outb(PIC1_COMMAND, PIC_EOI);
   return;
 }
 
-#define __ICW1_ICW4__ 0x01
-#define __ICW1_SINGLE__ 0x02
-#define __ICW1_INTERVAL4__ 0x04
-#define __ICW1_LEVEL__ 0x08
-#define __ICW1_INIT__ 0x10
+#define ICW1_ICW4 0x01
+#define ICW1_SINGLE 0x02
+#define ICW1_INTERVAL4 0x04
+#define ICW1_LEVEL 0x08
+#define ICW1_INIT 0x10
 
-#define __ICW4_8086MODE__ 0x01
-#define __ICW4_AUTO__ 0x02
-#define __ICW4_BUFFER_SLAVE_MODE__ 0x08
-#define __ICW4_BUFFER_MASTER_MODE__ 0x0C
-#define __ICW4_SPECIAL_FULLY_NESTED__ 0x10
+#define ICW4_8086MODE 0x01
+#define ICW4_AUTO 0x02
+#define ICW4_BUFFER_SLAVE_MODE 0x08
+#define ICW4_BUFFER_MASTER_MODE 0x0C
+#define ICW4_SPECIAL_FULLY_NESTED 0x10
 
-void picRemap(uint32_t offset1, uint32_t offset2){
-  uint8_t mask1=inb(__PIC1_DATA__);
-  uint8_t mask2=inb(__PIC2_DATA__);
-  outb(__PIC1_COMMAND__, __ICW1_INIT__|__ICW1_ICW4__);
-  ioWait();
-  outb(__PIC2_COMMAND__, __ICW1_INIT__|__ICW1_ICW4__);
-  ioWait();
-  outb(__PIC1_DATA__, offset1);
-  ioWait();
-  outb(__PIC2_DATA__, offset2);
-  ioWait();
-  outb(__PIC1_DATA__, 4);
-  ioWait();
-  outb(__PIC2_DATA__, 2);
-  ioWait();
-  outb(__PIC1_DATA__, __ICW4_8086MODE__);
-  ioWait();
-  outb(__PIC2_DATA__, __ICW4_8086MODE__);
-  ioWait();
-  outb(__PIC1_DATA__, mask1);
-  ioWait();
-  outb(__PIC2_DATA__, mask2);
-  ioWait();
+void core_pic_remap(uint32_t offset1, uint32_t offset2){
+  uint8_t mask1=core_inb(PIC1_DATA);
+  uint8_t mask2=core_inb(PIC2_DATA);
+  core_outb(PIC1_COMMAND, ICW1_INIT|ICW1_ICW4);
+  core_io_wait();
+  core_outb(PIC2_COMMAND, ICW1_INIT|ICW1_ICW4);
+  core_io_wait();
+  core_outb(PIC1_DATA, offset1);
+  core_io_wait();
+  core_outb(PIC2_DATA, offset2);
+  core_io_wait();
+  core_outb(PIC1_DATA, 4);
+  core_io_wait();
+  core_outb(PIC2_DATA, 2);
+  core_io_wait();
+  core_outb(PIC1_DATA, ICW4_8086MODE);
+  core_io_wait();
+  core_outb(PIC2_DATA, ICW4_8086MODE);
+  core_io_wait();
+  core_outb(PIC1_DATA, mask1);
+  core_io_wait();
+  core_outb(PIC2_DATA, mask2);
+  core_io_wait();
   return;
 }
 
@@ -73,52 +73,52 @@ void picRemap(uint32_t offset1, uint32_t offset2){
 // IDT
 
 typedef struct{
-  uint16_t offset0_15;
-  uint16_t segmentSelector16_31;
-  uint8_t reserved32_39;
-  uint8_t typeAttributes40_47;
-  uint16_t offset48_63;
-}__attribute__((packed)) idtSegmentDescriptor_t;
+  uint16_t offset_0_15;
+  uint16_t segment_selector_16_31;
+  uint8_t reserved_32_39;
+  uint8_t type_attributes_40_47;
+  uint16_t offset_48_63;
+}__attribute__((packed)) core_idt_segment_descriptor_t;
 
 typedef struct{
   uint16_t size;
   uint32_t offset;
-}__attribute__((packed)) idtDescriptor_t;
+}__attribute__((packed)) core_idt_descriptor_t;
 
 //__attribute__((aligned(0x10))) 
-static idtSegmentDescriptor_t idt[256];
+static core_idt_segment_descriptor_t idt[256];
 
-static idtDescriptor_t idtr;
+static core_idt_descriptor_t idtr;
 
-extern void* ISR_STUB_TABLE[48];
+extern void* core_isr_stub_table[48];
 
-void idtSetSegmentDescriptor(uint8_t vector, void* isr, uint8_t flags){
-  idtSegmentDescriptor_t* segmentDescriptor=&idt[vector];
-  segmentDescriptor->offset0_15=(uint32_t)isr&0xFFFF;
-  segmentDescriptor->segmentSelector16_31=__GDT_CODE_SEGMENT__;//GDT_CODE_SEGMENT;
-  segmentDescriptor->reserved32_39=0;
-  segmentDescriptor->typeAttributes40_47=flags;
-  segmentDescriptor->offset48_63=(uint32_t)isr>>16;
+void core_idt_set_segment_descriptor(uint8_t vector, void* isr, uint8_t flags){
+  core_idt_segment_descriptor_t* segment_descriptor=&idt[vector];
+  segment_descriptor->offset_0_15=(uint32_t)isr&0xFFFF;
+  segment_descriptor->segment_selector_16_31=GDT_CODE_SEGMENT;
+  segment_descriptor->reserved_32_39=0;
+  segment_descriptor->type_attributes_40_47=flags;
+  segment_descriptor->offset_48_63=(uint32_t)isr>>16;
+  return;
 }
 
-void idtInit(
-#ifdef __LOG__
-  uint8_t* message
+void core_idt_init(void){
+#ifdef LOG
+  core_log_str("[!] initializing interrupts\n\0", core_cursor_position, WHITE, BLACK);
 #endif
-){
   idtr.offset=(uint32_t)&idt[0];
-  idtr.size=(uint16_t)sizeof(idtSegmentDescriptor_t)*256-1;
+  idtr.size=(uint16_t)sizeof(core_idt_segment_descriptor_t)*256-1;
   for(uint8_t vector=0; vector<32; vector++){
-    idtSetSegmentDescriptor(vector, ISR_STUB_TABLE[vector], 0x8E);
+    core_idt_set_segment_descriptor(vector, core_isr_stub_table[vector], 0x8E);
   }
-  picRemap(__PIC1_OFFSET__, __PIC2_OFFSET__);
+  core_pic_remap(PIC1_OFFSET, PIC2_OFFSET);
   for(uint8_t vector=0; vector<16; vector++){
-    idtSetSegmentDescriptor(vector+32, ISR_STUB_TABLE[vector+32], 0x8E);
+    core_idt_set_segment_descriptor(vector+32, core_isr_stub_table[vector+32], 0x8E);
   }
-  outb(0x21,0xFD);outb(0xA1,0xFF);
+  core_outb(0x21,0xFD);core_outb(0xA1,0xFF);
   __asm__ __volatile__ ("cli; lidt (%0); sti"::"r"(&idtr));
-#ifdef __LOG__
-  kprint(message, 17, __WHITE__, __BLACK__);
+#ifdef LOG
+  core_log_str("[!] interrupts initialised\n\0", core_cursor_position, WHITE, BLACK);
 #endif
   return;
 }
@@ -127,23 +127,24 @@ void idtInit(
 
 typedef struct{
   uint32_t ds, edi, esi, ebp, esp, ebx, edx, ecx, eax;
-}__attribute__((packed)) isrCpuState_t;
+}__attribute__((packed)) core_isr_cpu_state_t;
 
 typedef struct{
   uint32_t number, errorcode, eip, cs, eflags, useresp, ss;
-}__attribute__((packed)) isrStackState_t;
+}__attribute__((packed)) core_isr_stack_state_t;
 
-void exceptionHandler(isrCpuState_t cpu, isrStackState_t stack){
-  kprint((uint8_t*)"interrupt detected!\0", 100, __WHITE__, __BLACK__);
-  kprintc(((uint16_t)(stack.number))+'0', 0, __WHITE__, __BLACK__);
-  kprintc(((uint16_t)(stack.errorcode))+'0', 120, __WHITE__, __BLACK__);
+void core_exception_handler(core_isr_cpu_state_t cpu, core_isr_stack_state_t stack){
+  core_log_str((uint8_t*)"interrupt detected!\0", core_cursor_position, RED, WHITE);
+  core_log(((uint16_t)(stack.number))+'0', *core_cursor_position, RED, WHITE);
+  core_log(((uint16_t)(stack.errorcode))+'0', *core_cursor_position, RED, WHITE);
+  HALT;
   return;
 }
 
-void irqHandler(isrCpuState_t cpu, isrStackState_t stack){
-  kprint((uint8_t*)"IRQ detected!\0", 180, __WHITE__, __BLACK__);
-  kprintc(((uint16_t)(stack.number)), 80, __WHITE__, __BLACK__);
-  kprintc(((uint16_t)(stack.errorcode)), 200, __WHITE__, __BLACK__);
+void core_irq_handler(core_isr_cpu_state_t cpu, core_isr_stack_state_t stack){
+  core_log_str((uint8_t*)"IRQ detected!\0", core_cursor_position, WHITE, BLACK);
+  core_log(((uint16_t)(stack.number)), *core_cursor_position, WHITE, BLACK);
+  core_log(((uint16_t)(stack.errorcode)), *core_cursor_position, WHITE, BLACK);
   return;
 }
 

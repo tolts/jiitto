@@ -31,11 +31,11 @@ void core_keyboard_handler(){
 
 void core_keyboard_init(void){
 #ifdef LOG
-  core_log_str(" Initializing keyboard\n\0", core_cursor_position, WHITE, BLACK);
+  core_log_str("[!] initializing keyboard\n\0", core_cursor_position, WHITE, BLACK);
 #endif
   core_idt_set_segment_descriptor(KEYBOARD_IRQ_VECTOR+32, core_keyboard_handler, 0x8E);
 #ifdef LOG
-  core_log_str(" Keyboard initialized (DONE)\n\0", core_cursor_position, WHITE, BLACK);
+  core_log_str("[!] keyboard initialized\n\0", core_cursor_position, WHITE, BLACK);
 #endif
   return;
 }

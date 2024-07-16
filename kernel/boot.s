@@ -296,3 +296,14 @@ irq_stub 44
 irq_stub 45
 irq_stub 46
 irq_stub 47
+
+global core_cpuid_available
+global core_cpu_vendor_id
+global core_cpuid_get_vendor_id
+
+core_cpuid_available:
+
+core_cpu_vendor_id:
+core_cpuid_get_vendor_id:
+
+

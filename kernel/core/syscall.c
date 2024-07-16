@@ -34,11 +34,11 @@ void core_syscall_handler(void){
 
 void core_syscall_init(void){
 #ifdef LOG
-	core_log_str(" Initializing syscalls\n\0", core_cursor_position, WHITE, BLACK);
+	core_log_str("[!] initializing syscalls\n\0", core_cursor_position, WHITE, BLACK);
 #endif
 	core_idt_set_segment_descriptor(SYSCALL_INTERRUPT_VECTOR, core_syscall_handler, 0x8E);
 #ifdef LOG
-	core_log_str(" Syscalls initialized (DONE)\n\0", core_cursor_position, WHITE, BLACK);
+	core_log_str("[!] syscalls initialized\n\0", core_cursor_position, WHITE, BLACK);
 #endif
 	return;
 }

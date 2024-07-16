@@ -5,8 +5,6 @@
 
 // all things graphical
 
-// text mode stuff
-
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
 

@@ -2,6 +2,7 @@
 BOOTX64.efi
 fat.img
 /build/
-*/*.o
+*.o
+*.out
 
 /.vscode/

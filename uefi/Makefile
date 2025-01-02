@@ -80,10 +80,13 @@ all: $(OUTDIR) $(EXTRA) $(ALLTARGETS) $(ALSO)
 	mformat -i $(build_dir)/fat.img -f 1440 ::
 	mmd -i $(build_dir)/fat.img ::/EFI
 	mmd -i $(build_dir)/fat.img ::/EFI/BOOT
+	mmd -i $(build_dir)/fat.img ::/EFI/SRC
 	mcopy -i $(build_dir)/fat.img $(TARGET) ::/EFI/BOOT
+	mcopy -i $(build_dir)/fat.img src/SRC/ ::/EFI/
 	cp $(build_dir)/fat.img $(build_dir)/iso
-	xorriso -as mkisofs -R -f -e fat.img -no-emul-boot -o jiitto.iso $(build_dir)/iso
+	xorriso -as mkisofs -R -f -e iso -no-emul-boot -o jiitto.iso $(build_dir)/iso
 	$(run_vm)
+	rm $(TO_RM)
 
 ifneq ($(OUTDIR),)
 $(OUTDIR):

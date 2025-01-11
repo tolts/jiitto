@@ -1,9 +1,22 @@
 
-# じいっと jiitto
+# JIITTO
 
-Amateur/Hobbyist Operating System by schochtlts
+Featureless hobbyist operating system.
 
-Nothing much special; mostly for self education purposes. 
+## Compilation
 
-The final goal would be to have an OS running on luajit with a very minimal support outside of it. Luajit will be running in ring 0 as will most programs. Ideally, you could easly write drivers and programs in lua and modifying them while the OS is running (hence luajit).
+You will need a *build* folder
 
+```sh
+mkdir build
+```
+
+In order to compile the OS use
+
+```sh
+make
+```
+
+## Acknowledgments
+
+All the UEFI related work is from [POSIX-UEFI](https://gitlab.com/bztsrc/posix-uefi).

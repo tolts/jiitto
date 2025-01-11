@@ -1,5 +1,8 @@
-dit.txt
-run.txt
-bochsrc.bxrc
-kernel.o
-boot.o
+
+BOOTX64.efi
+fat.img
+/build/
+*.o
+*.out
+
+/.vscode/

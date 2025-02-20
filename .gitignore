@@ -1,8 +1,4 @@
-
-BOOTX64.efi
-fat.img
-/build/
-*.o
-*.out
-
-/.vscode/
+/target
+/esp
+/.vscode
+makefile
